@@ -1,24 +1,15 @@
 var MongoClient = require('mongodb').MongoClient;
-var fs = require('fs');
+var http = require('http');
 var url = "mongodb://localhost:27017/";
 
-function getData1(){
-	MongoClient.connect(url, function(err, db) {
-	  if (err) throw err;
-	  var dbo = db.db("stk");
-	  dbo.collection("data").findOne({"scrip":"INFY"}, function(err, result) {
-	    if (err) throw err;
-	    console.log(result);
-	    //var fs = require('fs');
-	    //const JSON = require('circular-json');
-		//fs.writeFile('myjsonfile.json', JSON.stringify(result), 'utf8', callback);
-	    db.close();
+//create a server object:
+http.createServer(function (req, res) {
+	MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db1) {
+		var dbo = db1.db("data");
+		dbo.collection("datac").find({"scrip":"INFY"}).toArray(function(err, result) {
+			result.forEach(function(err,da){
+				res.write(JSON.stringify(result[da]));
+			});
+		});
 	  });
-	});
-}
-
-function callback(){
-
-}
-
-getData1();
+}).listen(8088);
